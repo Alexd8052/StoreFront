@@ -46,6 +46,8 @@ namespace StoreFront.UI.MVC
 
             app.UseRouting();
 
+            //app.UseSession();
+
             app.UseAuthentication();
             app.UseAuthorization();
 

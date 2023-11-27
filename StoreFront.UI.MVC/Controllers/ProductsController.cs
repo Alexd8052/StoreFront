@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreFront.DATA.EF.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Drawing;
+using X.PagedList;
+
 
 namespace StoreFront.UI.MVC.Controllers
 {
@@ -19,10 +24,77 @@ namespace StoreFront.UI.MVC.Controllers
         }
 
         // GET: Products
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var storeFrontContext = _context.Products.Include(p => p.Category).Include(p => p.Manufacturer).Include(p => p.ProductStatusNavigation);
+            var storeFrontContext = _context.Products.Include(p => p.Category).Include(p => p.Manufacturer);
             return View(await storeFrontContext.ToListAsync());
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Discontinued()
+        {
+            var products = _context.Products
+            .Include(p => p.Category).Include(p => p.Manufacturer).Include(p => p.OrderProducts);
+            return View(await products.ToListAsync());
+            //to create this view, we added the action, right click -> add View and selected the List template
+        }
+
+        public async Task<IActionResult> TiledProducts(string searchTerm, int categoryId, int page = 1)
+        {
+            int pageSize = 6;
+
+            var products = _context.Products
+                .Include(p => p.Category).Include(p => p.Manufacturer).Include(p => p.OrderProducts)
+                .ToList();
+
+            #region Optional Category Filter
+
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName");
+            ViewBag.Category = 0;
+
+            if (categoryId != 0)
+            {
+                //If the user selected a Category...
+                //(1) Filter the Products
+                products = products.Where(p => p.CategoryId == categoryId).ToList();
+
+                //(2) Repopulate the Dropdown with the chosen Category selected.
+                ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", categoryId);
+
+                //(3) Persist the Category in the ViewBag.
+                ViewBag.Category = categoryId;
+            }
+
+            #endregion
+
+            #region Optional Search Filter
+
+            if (!String.IsNullOrEmpty(searchTerm))
+            {
+                //If we have a SearchTerm...
+                products = products
+                    .Where(p =>
+                    p.ProductName.ToLower().Contains(searchTerm.ToLower())
+                    || p.Manufacturer.ManufacturerName.ToLower().Contains(searchTerm.ToLower())
+                    || p.Category.CategoryName.ToLower().Contains(searchTerm.ToLower())
+                    || p.ProductDescription.ToLower().Contains(searchTerm.ToLower()))
+                    .ToList();
+                ViewBag.NbrResults = products.Count;
+                ViewBag.SearchTerm = searchTerm;
+            }
+            else
+            {
+                //If we don't have a SearchTerm...
+                ViewBag.NbrResults = null;
+                ViewBag.SearchTerm = null;
+            }
+
+            #endregion
+
+            //return View(await products.ToListAsync());
+            //return View(products);
+            return View(products.ToPagedList(page, pageSize));
         }
 
         // GET: Products/Details/5
@@ -47,11 +119,11 @@ namespace StoreFront.UI.MVC.Controllers
         }
 
         // GET: Products/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName");
             ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "ManufacturerId", "ManufacturerName");
-            ViewData["ProductStatus"] = new SelectList(_context.ProductStatuses, "ProductStatus1", "ProductStatusName");
             return View();
         }
 
