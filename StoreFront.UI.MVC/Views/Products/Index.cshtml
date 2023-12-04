@@ -15,11 +15,10 @@
                 @if (User.IsInRole("Admin"))
                 {
                     <span>
-                        <a asp-action="Create">Add New Gadget</a> |
-                        <a asp-action="Discontinued">Discontinued Gadgets</a> |
+                        <a asp-action="Create">Add New Product</a> |
+                        <a asp-action="Discontinued">Discontinued Products</a> |
                     </span>
                 }
-                <a asp-action="TiledProducts">Tile View</a>
             </p>
 
         </div>
@@ -74,24 +73,38 @@
                             @Html.DisplayFor(modelItem => item.Manufacturer.ManufacturerName)
                         </td>
                         <td>
+                            <div class="option_container">
+                                <div class="options">
+                                    <a class="btn btn-outline-info" asp-action="Details"
+                                       asp-route-id="@item.ProductId"
+                                       class="option1">
+                                            Details
+                                    </a>
+                                    <a class="btn btn-outline-primary" asp-action="AddToCart"
+                                       asp-controller="ShoppingCart"
+                                       asp-route-id="@item.ProductId"
+                                       class="option2">
+                                        Add To Cart
+                                    </a>
+                                </div>
+                            </div>
                             @if (User.IsInRole("Admin"))
                             {
                             <span>
-                                <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> 
+                                <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> 
                             </span>
                             }
-                            <a asp-action="Details" asp-route-id="@item.ProductId">Details</a>
 
                                 @if (User.IsInRole("Admin"))
                                 {
                                     @if (item.OrderProducts.Count() == 0)
                                     {
-                                        <span>|</span>
-                                        <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
+                                        <span></span>
+                                        <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
                                     }
                                     else
                                     {
-                                        <span>|</span>
+                                        <span></span>
                                         <a disabled="disabled" class="text-danger text-decoration-line-through" title="Cannot delete this Product as it is referenced by an Order">
                                             Delete
                                         </a>

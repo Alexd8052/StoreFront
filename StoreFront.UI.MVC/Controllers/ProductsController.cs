@@ -10,6 +10,8 @@ using StoreFront.DATA.EF.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Drawing;
 using X.PagedList;
+using StoreFront.UI.MVC.Utilities;
+using Microsoft.AspNetCore.Hosting;
 
 
 namespace StoreFront.UI.MVC.Controllers
@@ -17,10 +19,12 @@ namespace StoreFront.UI.MVC.Controllers
     public class ProductsController : Controller
     {
         private readonly StoreFrontContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductsController(StoreFrontContext context)
+        public ProductsController(StoreFrontContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Products
@@ -47,50 +51,6 @@ namespace StoreFront.UI.MVC.Controllers
             var products = _context.Products
                 .Include(p => p.Category).Include(p => p.Manufacturer).Include(p => p.OrderProducts)
                 .ToList();
-
-            #region Optional Category Filter
-
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName");
-            ViewBag.Category = 0;
-
-            if (categoryId != 0)
-            {
-                //If the user selected a Category...
-                //(1) Filter the Products
-                products = products.Where(p => p.CategoryId == categoryId).ToList();
-
-                //(2) Repopulate the Dropdown with the chosen Category selected.
-                ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", categoryId);
-
-                //(3) Persist the Category in the ViewBag.
-                ViewBag.Category = categoryId;
-            }
-
-            #endregion
-
-            #region Optional Search Filter
-
-            if (!String.IsNullOrEmpty(searchTerm))
-            {
-                //If we have a SearchTerm...
-                products = products
-                    .Where(p =>
-                    p.ProductName.ToLower().Contains(searchTerm.ToLower())
-                    || p.Manufacturer.ManufacturerName.ToLower().Contains(searchTerm.ToLower())
-                    || p.Category.CategoryName.ToLower().Contains(searchTerm.ToLower())
-                    || p.ProductDescription.ToLower().Contains(searchTerm.ToLower()))
-                    .ToList();
-                ViewBag.NbrResults = products.Count;
-                ViewBag.SearchTerm = searchTerm;
-            }
-            else
-            {
-                //If we don't have a SearchTerm...
-                ViewBag.NbrResults = null;
-                ViewBag.SearchTerm = null;
-            }
-
-            #endregion
 
             //return View(await products.ToListAsync());
             //return View(products);
@@ -132,10 +92,69 @@ namespace StoreFront.UI.MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("ProductId,ProductName,ProductPrice,ProductDescription,ProductImage,CategoryId,ManufacturerId,ProductStatus")] Product product)
         {
             if (ModelState.IsValid)
             {
+
+                #region File Upload - CREATE
+                //Check to see if a file was uploaded
+                if (product.Image != null)
+                {
+                    //Check the file type 
+                    //- retrieve the extension of the uploaded file
+                    string ext = Path.GetExtension(product.Image.FileName);
+
+                    //- Create a list of valid extensions to check against
+                    string[] validExts = { ".jpeg", ".jpg", ".gif", ".png" };
+
+                    //- verify the uploaded file has an extension matching one of the extensions in the list above
+                    //- AND verify file size will work with our .NET app
+                    if (validExts.Contains(ext.ToLower()) && product.Image.Length < 4_194_303)//underscores don't change the number, they just make it easier to read
+                    {
+                        //Generate a unique filename
+                        product.ProductImage = Guid.NewGuid() + ext;
+
+                        //Save the file to the web server (here, saving to wwwroot/images)
+                        //To access wwwroot, add a property to the controller for the _webHostEnvironment (see the top of this class for our example)
+                        //Retrieve the path to wwwroot
+                        string webRootPath = _webHostEnvironment.WebRootPath;
+                        //variable for the full image path --> this is where we will save the image
+                        string fullImagePath = webRootPath + "/images/";
+
+                        //Create a MemoryStream to read the image into the server memory
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await product.Image.CopyToAsync(memoryStream);//transfer file from the request to server memory
+                            using (var img = Image.FromStream(memoryStream))//add a using statement for the Image class (using System.Drawing)
+                            {
+                                //now, send the image to the ImageUtility for resizing and thumbnail creation
+                                //items needed for the ImageUtility.ResizeImage()
+                                //1) (int) maximum image size
+                                //2) (int) maximum thumbnail image size
+                                //3) (string) full path where the file will be saved
+                                //4) (Image) an image
+                                //5) (string) filename
+                                int maxImageSize = 500;//in pixels
+                                int maxThumbSize = 100;
+
+                                ImageUtility.ResizeImage(fullImagePath, product.ProductImage, img, maxImageSize, maxThumbSize);
+                                //myFile.Save("path/to/folder", "filename"); - how to save something that's NOT an image
+
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //If no image was uploaded, assign a default filename
+                    //Will also need to download a default image and name it 'noimage.png' -> copy it to the /images folder
+                    product.ProductImage = "noimage.png";
+                }
+
+                #endregion
+
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -179,6 +198,51 @@ namespace StoreFront.UI.MVC.Controllers
 
             if (ModelState.IsValid)
             {
+
+                #region EDIT File Upload
+                //retain old image file name so we can delete if a new file was uploaded
+                string oldImageName = product.ProductImage;
+
+                //Check if the user uploaded a file
+                if (product.Image != null)
+                {
+                    //get the file's extension
+                    string ext = Path.GetExtension(product.Image.FileName);
+
+                    //list valid extensions
+                    string[] validExts = { ".jpeg", ".jpg", ".png", ".gif" };
+
+                    //check the file's extension against the list of valid extensions
+                    if (validExts.Contains(ext.ToLower()) && product.Image.Length < 4_194_303)
+                    {
+                        //generate a unique file name
+                        product.ProductImage = Guid.NewGuid() + ext;
+                        //build our file path to save the image
+                        string webRootPath = _webHostEnvironment.WebRootPath;
+                        string fullPath = webRootPath + "/images/";
+
+                        //Delete the old image
+                        if (oldImageName != "noimage.png")
+                        {
+                            ImageUtility.Delete(fullPath, oldImageName);
+                        }
+
+                        //Save the new image to webroot
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await product.Image.CopyToAsync(memoryStream);
+                            using (var img = Image.FromStream(memoryStream))
+                            {
+                                int maxImageSize = 500;
+                                int maxThumbSize = 100;
+                                ImageUtility.ResizeImage(fullPath, product.ProductImage, img, maxImageSize, maxThumbSize);
+                            }
+                        }
+
+                    }
+                }
+                #endregion
+
                 try
                 {
                     _context.Update(product);

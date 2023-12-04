@@ -1,8 +1,10 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Featured Products";
 }
 
 <!-- Section-->
+<h1 class="text-center">@ViewData["Title"]</h1>
+
 <section class="py-5">
     <div class="container px-4 px-lg-5 mt-5">
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
@@ -15,13 +17,11 @@
                         <div class="text-center">
                             <!-- Product name-->
                             <h5 class="fw-bolder">Podium DD1 Wheel Base</h5>
-                            <!-- Product price-->
-                            $1199.95
                         </div>
                     </div>
                     <!-- Product actions-->
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="asp-action="Details" asp-route-id="@item.ProductId"Details">Add to Cart</a></div>
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "Products")">Shop Now!</a></div>
                     </div>
                 </div>
             </div>
@@ -34,13 +34,11 @@
                         <div class="text-center">
                             <!-- Product name-->
                             <h5 class="fw-bolder">Podium BMW M4 GT3 Steering Wheel</h5>
-                            <!-- Product price-->
-                            $1499.95
                         </div>
                     </div>
                     <!-- Product actions-->
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "ShoppingCart")">Add to cart</a></div>
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "Products")">Shop Now!</a></div>
                     </div>
                 </div>
             </div>
@@ -53,13 +51,11 @@
                         <div class="text-center">
                             <!-- Product name-->
                             <h5 class="fw-bolder">CSL DD Wheel Base</h5>
-                            <!-- Product price-->
-                            $349.95
                         </div>
                     </div>
                     <!-- Product actions-->
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "ShoppingCart")">Add to cart</a></div>
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "Products")">Shop Now!</a></div>
                     </div>
                 </div>
             </div>
@@ -72,13 +68,11 @@
                         <div class="text-center">
                             <!-- Product name-->
                             <h5 class="fw-bolder">McLaren GT3 V2 Steering Wheel</h5>
-                            <!-- Product price-->
-                            $199.95
                         </div>
                     </div>
                     <!-- Product actions-->
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "ShoppingCart")">Add to cart</a></div>
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "Products")">Shop Now!</a></div>
                     </div>
                 </div>
             </div>
@@ -91,14 +85,11 @@
                         <div class="text-center">
                             <!-- Product name-->
                             <h5 class="fw-bolder">CSL Elite Pedals V2</h5>
-                            <!-- Product price-->
-                            $299.95
-                            
                         </div>
                     </div>
                     <!-- Product actions-->
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "ShoppingCart")">Add to cart</a></div>
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "Products")">Shop Now!</a></div>
                     </div>
                 </div>
             </div>
@@ -111,13 +102,11 @@
                         <div class="text-center">
                             <!-- Product name-->
                             <h5 class="fw-bolder">Podium DD2 Wheel Base</h5>
-                            <!-- Product price-->
-                            $1499.95
                         </div>
                     </div>
                     <!-- Product actions-->
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "ShoppingCart")">View options</a></div>
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "Products")">Shop Now!</a></div>
                     </div>
                 </div>
             </div>
@@ -130,13 +119,11 @@
                         <div class="text-center">
                             <!-- Product name-->
                             <h5 class="fw-bolder">Clubsport Shifter SQ</h5>
-                            <!-- Product price-->
-                            $259.95
                         </div>
                     </div>
                     <!-- Product actions-->
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "ShoppingCart")">Add to cart</a></div>
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "Products")">Shop Now!</a></div>
                     </div>
                 </div>
             </div>
@@ -149,13 +136,11 @@
                         <div class="text-center">
                             <!-- Product name-->
                             <h5 class="fw-bolder">Clubsport Pedals V3</h5>
-                            <!-- Product price-->
-                            $399.95
                         </div>
                     </div>
                     <!-- Product actions-->
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "ShoppingCart")">Add to cart</a></div>
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="@Url.Action("Index", "Products")">Shop Now!</a></div>
                     </div>
                 </div>
             </div>
