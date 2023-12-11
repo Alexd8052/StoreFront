@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 # Protect sensitive info
 /StoreFront.UI.MVC/appsettings.json
+/StoreFront.UI.MVC/appsettings.json

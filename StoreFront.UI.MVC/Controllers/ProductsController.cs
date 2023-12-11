@@ -52,6 +52,50 @@ namespace StoreFront.UI.MVC.Controllers
                 .Include(p => p.Category).Include(p => p.Manufacturer).Include(p => p.OrderProducts)
                 .ToList();
 
+            #region Optional Category Filter
+
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName");
+            ViewBag.Category = 0;
+
+            if (categoryId != 0)
+            {
+                //If the user selected a Category...
+                //(1) Filter the Products
+                products = products.Where(p => p.CategoryId == categoryId).ToList();
+
+                //(2) Repopulate the Dropdown with the chosen Category selected.
+                ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", categoryId);
+
+                //(3) Persist the Category in the ViewBag.
+                ViewBag.Category = categoryId;
+            }
+
+            #endregion
+
+            #region Optional Search Filter
+
+            if (!String.IsNullOrEmpty(searchTerm))
+            {
+                //If we have a SearchTerm...
+                products = products
+                    .Where(p =>
+                    p.ProductName.ToLower().Contains(searchTerm.ToLower())
+                    || p.Manufacturer.ManufacturerName.ToLower().Contains(searchTerm.ToLower())
+                    || p.Category.CategoryName.ToLower().Contains(searchTerm.ToLower())
+                    || p.ProductDescription.ToLower().Contains(searchTerm.ToLower()))
+                    .ToList();
+                ViewBag.NbrResults = products.Count;
+                ViewBag.SearchTerm = searchTerm;
+            }
+            else
+            {
+                //If we don't have a SearchTerm...
+                ViewBag.NbrResults = null;
+                ViewBag.SearchTerm = null;
+            }
+
+            #endregion
+
             //return View(await products.ToListAsync());
             //return View(products);
             return View(products.ToPagedList(page, pageSize));
@@ -93,7 +137,7 @@ namespace StoreFront.UI.MVC.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductName,ProductPrice,ProductDescription,ProductImage,CategoryId,ManufacturerId,ProductStatus")] Product product)
+        public async Task<IActionResult> Create([Bind("ProductId,ProductName,ProductPrice,ProductDescription,ProductImage,CategoryId,ManufacturerId,ProductStatus,ProductImage")] Product product)
         {
             if (ModelState.IsValid)
             {
@@ -189,7 +233,7 @@ namespace StoreFront.UI.MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,ProductPrice,ProductDescription,ProductImage,CategoryId,ManufacturerId,ProductStatus")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,ProductPrice,ProductDescription,ProductImage,CategoryId,ManufacturerId,ProductStatus,ProductImage")] Product product)
         {
             if (id != product.ProductId)
             {

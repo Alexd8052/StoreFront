@@ -7,18 +7,14 @@
 <section class="product_section layout_padding">
     <div class="container">
         <div class="heading_container heading_center">
-            <h2>
-                Shop <span>Sim Racing Gear</span>
-            </h2>
-
             <p align="center">
                 @if (User.IsInRole("Admin"))
                 {
                     <span>
-                        <a asp-action="Create">Add New Product</a> |
-                        <a asp-action="Discontinued">Discontinued Products</a> |
+                        <a asp-action="Create">Add New Product</a>
                     </span>
                 }
+                <a asp-action="TiledProducts">Tile View</a>
             </p>
 
         </div>
@@ -119,7 +115,7 @@
     </div>
 </section>
 
-@section Scripts {
+@section Scripts{
     <script>
         $(document).ready(function () {
             $('.table').DataTable();

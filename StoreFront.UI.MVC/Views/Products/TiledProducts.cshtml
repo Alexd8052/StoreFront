@@ -3,7 +3,7 @@
 @using X.PagedList;
 
 @{
-    ViewData["Title"] = "Shop Gadgets";
+    ViewData["Title"] = "Shop Gear";
 }
 
 
@@ -13,18 +13,11 @@
     <div class="container">
         <div class="heading_container heading_center">
             <h2>
-                Shop <span>Gadgets</span>
+                @ViewData["Title"]
             </h2>
         </div>
 
         <p align="center">
-            @if (User.IsInRole("Admin"))
-            {
-                <span>
-                    <a asp-action="Create">Add New Gadget</a> |
-                    <a asp-action="Discontinued">Discontinued Gadgets</a> |
-                </span>
-            }
             <a asp-action="Index">Table View</a>
         </p>
 
@@ -60,7 +53,7 @@
                     </select>
 
                     @* Inputs for Search *@
-                    <input name="searchTerm" class="form-control text-center" placeholder="Search Gadgets..." />
+                    <input name="searchTerm" class="form-control text-center" placeholder="Search Products..." />
 
                     <input type="submit" value="Go" class="btn btn-primary text-center w-50 d-block" />
 
@@ -89,7 +82,7 @@
                                 <a asp-action="AddToCart"
                                    asp-controller="ShoppingCart"
                                    asp-route-id="@item.ProductId"
-                                   class="option2">
+                                   class="option2 btn btn-primary">
                                     Add To Cart
                                 </a>
                             </div>
