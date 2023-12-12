@@ -20,7 +20,7 @@ namespace StoreFront.DATA.EF.Models
         public int? ManufacturerId { get; set; }
         public int? ProductStatus { get; set; }
 
-        public virtual Category Category { get; set; } = null!;
+        public virtual Category? Category { get; set; } 
         public virtual Manufacturer? Manufacturer { get; set; }
         public virtual ProductStatus? ProductStatusNavigation { get; set; }
         public virtual ICollection<OrderProduct> OrderProducts { get; set; }
